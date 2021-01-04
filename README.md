@@ -1,5 +1,9 @@
 # fast-neural-style :city_sunrise: :rocket:
 
+# API
+To build updated version, use `docker-compose up -d --build`
+
+
 **NOTICE**: This codebase is no longer maintained, please use the codebase from pytorch examples repository available at [pytorch/examples/fast_neural_style](https://github.com/pytorch/examples/tree/master/fast_neural_style).
 
 This repository contains a pytorch implementation of an algorithm for artistic style transfer. The algorithm can be used to mix the content of an image with the style of another image. For example, here is a photograph of a door arch rendered in the style of a stained glass painting.

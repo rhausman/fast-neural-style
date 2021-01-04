@@ -1,24 +1,30 @@
 import os
+import base64
+import skimage
 from typing import Optional
 from pydantic import BaseModel
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-#from app.api.routes import router as api_router
+
+# from app.api.routes import router as api_router
 
 # to run server, uvicorn api:app --reload
 def get_application():
     app = FastAPI(title="Phresh", version="1.0.0")
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=["*"],  # *
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    #app.include_router(api_router, prefix="/api")
+    # app.include_router(api_router, prefix="/api")
     return app
+
+
 app = get_application()
+
 
 class Item(BaseModel):
     name: str
@@ -26,10 +32,11 @@ class Item(BaseModel):
     is_offer: Optional[bool] = None
 
 
-@app.post("/uploadfile/")
-async def create_upload_file(
+@app.post("/style_image/{style}")
+async def style_the_image(
     file: UploadFile = File(...), style: Optional[str] = "mosaic"
 ):
+    print("STYLE: ", style)
     # resolve style
     if style + ".pth" not in os.listdir("saved-models"):
         style = "mosaic"
@@ -44,10 +51,15 @@ async def create_upload_file(
         + ".pth --output-image tmp/output.jpg  --cuda 0"
     )
     ##processing
+    with open("tmp/output.jpg", "rb") as ff:
+        encoded = base64.b64encode(ff.read())
+    return {
+        "name": style,
+        "img": encoded,
+    }
 
-    return {"style": style, "img": FileResponse("tmp/output.jpg")}
 
-
+"""
 @app.get("/style_image/{style}")
 async def stylize_image(style: str, file: UploadFile = File(...)):
     contents = await file.read()
@@ -61,6 +73,13 @@ async def stylize_image(style: str, file: UploadFile = File(...)):
 
     return {"style": style, "img": FileResponse("tmp/output.jpg")}
 
+"""
+
+
+@app.get("/get_available_styles")
+def read_test():
+    return [pth.split(".")[0] for pth in os.listdir("saved-models")]
+
 
 @app.get("/")
 def read_root():
@@ -68,10 +87,35 @@ def read_root():
 
 
 @app.get("/items/{item_id}")
-def read_item(item_id: int, q: Optional[str] = None):
-    return {"item_id": item_id, "q": q}
+def read_item(item_id: str):
+    # , file: Optional[UploadFile] = File(...)):
+    print("ID:::", item_id)
+    return {"Hello": item_id}  # , "image": file}
 
 
+@app.post("/items/{item_id}")
+def read_item(item_id: str, file: Optional[UploadFile] = File(...)):
+    print("ID:::", item_id, "incoming", file)
+    return FileResponse(
+        "tmp/output.jpg"
+    )  # {"name": item_id, "img": FileResponse("tmp/output.jpg")}  # , "image": file}
+
+
+@app.post("/filetest/{item_id}")
+def read_item(item_id: str, file: Optional[UploadFile] = File(...)):
+    print("TEST: ", item_id)
+    with open("tmp/output.jpg", "rb") as ff:
+        encoded = base64.b64encode(ff.read())
+    print(encoded)
+    return {
+        "name": item_id,
+        "img": encoded,
+    }  # FileResponse("tmp/output.jpg")}  # , "image": file}
+
+
+"""
 @app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item):
+def update_item(item_id: str, item: Item):
+    print(item_id)
     return {"item_name": item.name, "item_id": item_id}
+"""
