@@ -1,6 +1,6 @@
 import os
 import base64
-import skimage
+from skimage import io, transform
 from typing import Optional
 from pydantic import BaseModel
 from fastapi import FastAPI, File, UploadFile
@@ -44,6 +44,10 @@ async def style_the_image(
     contents = await file.read()
     with open("tmp/input.jpg", "wb") as ff:
         ff.write(contents)
+    # open the image, resize, and save
+    img = io.imread("tmp/input.jpg")
+    img = transform.resize(img, (200, 200, 3))
+    io.imsave("tmp/output.jpg", img)
 
     os.system(
         "python neural_style/neural_style.py eval --content-image tmp/input.jpg --model saved-models/"
