@@ -45,9 +45,13 @@ async def style_the_image(
     with open("tmp/input.jpg", "wb") as ff:
         ff.write(contents)
     # open the image, resize, and save
+    # desired width = 300px
     img = io.imread("tmp/input.jpg")
-    img = transform.resize(img, (200, 200, 3))
-    io.imsave("tmp/output.jpg", img)
+    scale_factor = 300 / img.shape[1]
+    height, width = (img.shape[0] * scale_factor, img.shape[1] * scale_factor)
+    img = transform.resize(img, (height, width, 3))
+    print("SHAPE: ", img.shape)
+    io.imsave("tmp/input.jpg", img)
 
     os.system(
         "python neural_style/neural_style.py eval --content-image tmp/input.jpg --model saved-models/"
@@ -63,6 +67,8 @@ async def style_the_image(
     }
 
 
+# get the example style images
+# @app.get
 """
 @app.get("/style_image/{style}")
 async def stylize_image(style: str, file: UploadFile = File(...)):
