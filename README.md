@@ -2,6 +2,8 @@
 
 # API
 To build updated version, use `docker-compose up -d --build`
+To run, use `docker-compose up`
+or, to run without a docker container, use `uvicorn api:app --reload --workers 1 --host 0.0.0.0 --port 8000`
 
 
 **NOTICE**: This codebase is no longer maintained, please use the codebase from pytorch examples repository available at [pytorch/examples/fast_neural_style](https://github.com/pytorch/examples/tree/master/fast_neural_style).
